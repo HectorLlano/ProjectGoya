@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 /**
  * Base
@@ -17,7 +18,32 @@ const scene = new THREE.Scene();
 /**
  * GLTF Loader
  */
+const gltfLoader = new GLTFLoader();
 
+gltfLoader.load(
+    '/models/2301_ES-MAD_GOYA49_ARQ_F0_V00.gltf',
+    (gltf) => {
+        console.log('success');
+
+        console.log(gltf);
+        // Update import material
+        gltf.scene.traverse(
+            (ele) => {
+                if(ele.isMesh) {
+                    ele.material = material;
+                }
+            }
+        )
+
+        scene.add(gltf.scene)
+    },
+    () => {
+        console.log('progress');
+    },
+    () => {
+        console.log('error');
+    }
+)
 
 /**
  * Textures
@@ -32,7 +58,7 @@ const sphereGeometry = new THREE.SphereGeometry(1, 32, 16);
 
 // Material
 const material = new THREE.MeshNormalMaterial();
-material.wireframe = true
+material.wireframe = false
 
 // Mesh
 const mesh1 = new THREE.Mesh(boxGeometry, material);
@@ -44,6 +70,17 @@ scene.add(mesh1, mesh2);
 // Lights
 const ambientLight = new THREE.AmbientLight(0xffffff, 2,4);
 scene.add(ambientLight)
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8)
+directionalLight.position.set(40, 40, 40)
+directionalLight.castShadow = true
+directionalLight.shadow.mapSize.set(1024, 1024)
+directionalLight.shadow.camera.far = 50
+directionalLight.shadow.camera.left = -25
+directionalLight.shadow.camera.top = 25
+directionalLight.shadow.camera.right = 25
+directionalLight.shadow.camera.bottom = -25
+scene.add(directionalLight)
 
 /**
  * Sizes
@@ -73,7 +110,7 @@ window.addEventListener("resize", () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-camera.position.set(0, 2, 3);
+camera.position.set(26, 25, 27);
 scene.add(camera);
 
 // Controls
@@ -103,7 +140,7 @@ const tick = () =>
 
     // Update controls
     controls.update()
-
+    
     // Render
     renderer.render(scene, camera)
 
@@ -112,3 +149,4 @@ const tick = () =>
 }
 
 tick()
+
